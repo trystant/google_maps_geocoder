@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
                   "Maps' response. GoogleMapsGeocoder wraps it in a plain-old "\
                   'Ruby object.'
   s.homepage = 'http://github.com/ivanoblomov/google_maps_geocoder'
-  s.authors = ['Roderick Monje']
+  s.authors = ['Roderick Monje','Mark Nyon']
 
   s.add_development_dependency 'codeclimate-test-reporter', '>= 0'
   s.add_development_dependency 'coveralls', '>= 0'
