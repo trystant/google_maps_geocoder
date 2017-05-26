@@ -249,6 +249,7 @@ class GoogleMapsGeocoder
   def neighborhood_url(query)
     "#{GOOGLE_API_URI}?address=#{Rack::Utils.escape query}&sensor=false"\
     "&bounds=#{@bounds.join(',').gsub(/,(.*),(.*),/, ',\1|\2,')}"\
+    "&components=neighborhood"\
     "#{api_key}"
   end
 
