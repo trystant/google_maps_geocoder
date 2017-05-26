@@ -184,6 +184,15 @@ class GoogleMapsGeocoder
   def parse_county
     parse_address_component_type('administrative_area_level_2')
   end
+  
+  def parse_bounds
+    [
+      @json['results'][0]['geometry']['viewport']['northeast']['lat'],
+      @json['results'][0]['geometry']['viewport']['northeast']['lng'],
+      @json['results'][0]['geometry']['viewport']['southwest']['lat'],
+      @json['results'][0]['geometry']['viewport']['southwest']['lng']
+    ]
+  end
 
   def parse_formatted_address
     @json['results'][0]['formatted_address']
