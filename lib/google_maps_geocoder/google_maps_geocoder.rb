@@ -104,7 +104,7 @@ class GoogleMapsGeocoder
   # Fetches the neighborhood
   def fetch_neighborhood
     return unless bounds.is_a?(Array) && bounds.size == 4
-    uri = URI.parse neighborhood_url
+    uri = URI.parse neighborhood_url(formatted_street_address)
     logger.debug('GoogleMapsGeocoder') { uri }
     response = http(uri).request(Net::HTTP::Get.new(uri.request_uri))
     ActiveSupport::JSON.decode response.body
@@ -249,7 +249,7 @@ class GoogleMapsGeocoder
   def neighborhood_url(query)
     "#{GOOGLE_API_URI}?address=#{Rack::Utils.escape query}&sensor=false"\
     "&bounds=#{@bounds.join(',').gsub(/,(.*),(.*),/, ',\1|\2,')}"\
-    "&components=neighborhood"\
+    '&components=neighborhood'\
     "#{api_key}"
   end
 
