@@ -186,11 +186,13 @@ class GoogleMapsGeocoder
   end
 
   def parse_bounds
+    northeast =  @json['results'][0]['geometry']['viewport']['northeast']
+    southwest =  @json['results'][0]['geometry']['viewport']['southwest']
     [
-      @json['results'][0]['geometry']['viewport']['northeast']['lat'],
-      @json['results'][0]['geometry']['viewport']['northeast']['lng'],
-      @json['results'][0]['geometry']['viewport']['southwest']['lat'],
-      @json['results'][0]['geometry']['viewport']['southwest']['lng']
+      northeast['lat'],
+      northeast['lng'],
+      southwest['lat'],
+      southwest['lng']
     ]
   end
 
