@@ -30,15 +30,6 @@ class GoogleMapsGeocoder
     def message
       "Google returned:\n#{@json.inspect}"
     end
-
-    # Returns the neighborhood
-    def fetch_neighborhood
-      return unless bounds.is_a(Array) && bounds.size == 4
-      uri = URI.parse neighborhood_url
-      logger.debug('GoogleMapsGeocoder') { uri }
-      response = http(uri).request(Net::HTTP::Get.new(uri.request_uri))
-      ActiveSupport::JSON.decode response.body
-    end
   end
 
   class ZeroResultsError < GeocodingError; end
@@ -108,6 +99,15 @@ class GoogleMapsGeocoder
     logger.info('GoogleMapsGeocoder') do
       "Geocoded \"#{data}\" => \"#{formatted_address}\""
     end
+  end
+
+  # Fetches the neighborhood
+  def fetch_neighborhood
+    return unless bounds.is_a(Array) && bounds.size == 4
+    uri = URI.parse neighborhood_url
+    logger.debug('GoogleMapsGeocoder') { uri }
+    response = http(uri).request(Net::HTTP::Get.new(uri.request_uri))
+    ActiveSupport::JSON.decode response.body
   end
 
   # Returns true if the address Google returns is an exact match.
