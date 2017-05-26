@@ -50,22 +50,22 @@ describe GoogleMapsGeocoder do
     context 'address' do
       it do
         expect(subject.formatted_street_address)
-          .to eq '1600 Pennsylvania Avenue Southeast'
+          .to eq '1600 Pennsylvania Avenue Northwest'
       end
       it { expect(subject.city).to eq 'Washington' }
       it { expect(subject.state_long_name).to eq 'District of Columbia' }
       it { expect(subject.state_short_name).to eq 'DC' }
-      it { expect(subject.postal_code).to match(/2000[0-9]/) }
+      it { expect(subject.postal_code).to match(/20500/) }
       it { expect(subject.country_short_name).to eq 'US' }
       it { expect(subject.country_long_name).to eq 'United States' }
       it do
         expect(subject.formatted_address)
-          .to match(/1600 Pennsylvania Ave SE, Washington, DC 20003, USA/)
+          .to match(/1600 Pennsylvania Ave NW, Washington, DC 20500, USA/)
       end
     end
     context 'coordinates' do
-      it { expect(subject.lat).to be_within(0.005).of(38.8791981) }
-      it { expect(subject.lng).to be_within(0.005).of(-76.9818437) }
+      it { expect(subject.lat).to be_within(0.005).of(38.897696) }
+      it { expect(subject.lng).to be_within(0.005).of(-77.036519) }
     end
   end
 
