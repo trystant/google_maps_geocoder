@@ -12,6 +12,7 @@ require 'rack'
 #     => "1600 Pennsylvania Avenue Northwest, President's Park,
 #         Washington, DC 20500, USA"
 # rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/AbcSize
 class GoogleMapsGeocoder
   # Error handling for google statuses
   class GeocodingError < StandardError
@@ -28,6 +29,15 @@ class GoogleMapsGeocoder
     # @return [String] the geocoding error's content
     def message
       "Google returned:\n#{@json.inspect}"
+    end
+
+    # Returns the neighborhood
+    def fetch_neighborhood
+      return unless bounds.is_a(Array) && bounds.size == 4
+      uri = URI.parse neighborhood_url
+      logger.debug('GoogleMapsGeocoder') { uri }
+      response = http(uri).request(Net::HTTP::Get.new(uri.request_uri))
+      ActiveSupport::JSON.decode response.body
     end
   end
 
@@ -50,6 +60,7 @@ class GoogleMapsGeocoder
     county
     lat
     lng
+    neighborhood
     bounds
     postal_code
     state_long_name
@@ -218,6 +229,10 @@ class GoogleMapsGeocoder
     parse_address_component_type('postal_code')
   end
 
+  def parse_neighborhood
+    parse_address_component_type('neighborhood')
+  end
+
   def parse_state_long_name
     parse_address_component_type('administrative_area_level_1')
   end
@@ -228,6 +243,12 @@ class GoogleMapsGeocoder
 
   def query_url(query)
     "#{GOOGLE_API_URI}?address=#{Rack::Utils.escape query}&sensor=false"\
+    "#{api_key}"
+  end
+
+  def neighborhood_url(query)
+    "#{GOOGLE_API_URI}?address=#{Rack::Utils.escape query}&sensor=false"\
+    "&bounds=#{@bounds.join(',').gsub(/,(.*),(.*),/, ',\1|\2,')}"\
     "#{api_key}"
   end
 
