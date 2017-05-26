@@ -50,6 +50,7 @@ class GoogleMapsGeocoder
     county
     lat
     lng
+    bounds
     postal_code
     state_long_name
     state_short_name
