@@ -103,12 +103,16 @@ class GoogleMapsGeocoder
 
   # Fetches the neighborhood
   def fetch_neighborhood
-    return unless bounds.is_a?(Array) && bounds.size == 4
+
+   return unless bounds.is_a?(Array) && bounds.size == 4
     uri = URI.parse neighborhood_url(formatted_street_address)
     logger.debug('GoogleMapsGeocoder') { uri }
     response = http(uri).request(Net::HTTP::Get.new(uri.request_uri))
-    ActiveSupport::JSON.decode response.body
+
+    results = ActiveSupport::JSON.decode response.body
+    results['results'].map {|e| e['address_components']}.compact.flatten.select{|e| e['types'].include?('neighborhood') }.map{|e| e['long_name']}.uniq
   end
+
 
   # Returns true if the address Google returns is an exact match.
   #
@@ -246,7 +250,7 @@ class GoogleMapsGeocoder
     "#{api_key}"
   end
 
-  def neighborhood_url(query)
+  def neighborhood_url()
     "#{GOOGLE_API_URI}?address=#{Rack::Utils.escape query}&sensor=false"\
     "&bounds=#{@bounds.join(',').gsub(/,(.*),(.*),/, ',\1|\2,')}"\
     '&components=neighborhood'\
