@@ -257,7 +257,7 @@ class GoogleMapsGeocoder
     '&componentRestrictions=neighborhood'\
     "#{api_key}"
   end
-  
+
   def set_attributes_from_json
     ALL_ADDRESS_SEGMENTS.each do |segment|
       instance_variable_set :"@#{segment}", send("parse_#{segment}")
