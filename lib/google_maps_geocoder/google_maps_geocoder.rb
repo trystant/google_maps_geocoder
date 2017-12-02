@@ -175,7 +175,7 @@ class GoogleMapsGeocoder
   end
 
   def logger
-    @logger ||= Logger.new STDERR
+    @logger ||= Logger.new (ENV['GMG_LOG_FILE'] || STDERR)
   end
 
   def parse_address_component_type(type, name = 'long_name')
