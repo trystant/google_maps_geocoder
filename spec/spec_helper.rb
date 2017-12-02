@@ -2,7 +2,8 @@ require 'simplecov'
 SimpleCov.start
 require 'coveralls'
 Coveralls.wear!
-
+require 'dotenv'
+Dotenv.load
 require 'pry'
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
   Coveralls::SimpleCov::Formatter
