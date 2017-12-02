@@ -150,7 +150,7 @@ class GoogleMapsGeocoder
   def http(uri)
     c = Curl::Easy.new(uri.to_s) do |curl|
       curl.ssl_verify_peer = false
-      curl.verbose = true
+      curl.verbose = false
     end
     c.perform
     c
