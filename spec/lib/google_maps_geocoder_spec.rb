@@ -50,14 +50,14 @@ describe GoogleMapsGeocoder do
     context 'address' do
       it do
         expect(subject.formatted_street_address)
-          .to eq '1600 Pennsylvania Avenue Northwest'
+          .to eql '1600 Pennsylvania Avenue Northwest'
       end
       it { expect(subject.city).to eq 'Washington' }
-      it { expect(subject.state_long_name).to eq 'District of Columbia' }
-      it { expect(subject.state_short_name).to eq 'DC' }
+      it { expect(subject.state_long_name).to eql 'District of Columbia' }
+      it { expect(subject.state_short_name).to eql 'DC' }
       it { expect(subject.postal_code).to match(/20500/) }
-      it { expect(subject.country_short_name).to eq 'US' }
-      it { expect(subject.country_long_name).to eq 'United States' }
+      it { expect(subject.country_short_name).to eql 'US' }
+      it { expect(subject.country_long_name).to eql 'United States' }
       it do
         expect(subject.formatted_address)
           .to match(/1600 Pennsylvania Ave NW, Washington, DC 20500, USA/)
@@ -69,15 +69,15 @@ describe GoogleMapsGeocoder do
     end
   end
 
-  context "when ENV['GOOGLE_MAPS_API_KEY'] = '[secure]'" do
-    before { ENV['GOOGLE_MAPS_API_KEY'] = '[secure]' }
+  context "when ENV['GOOGLE_MAPS_API_KEY'] = 'INVALID_KEY'" do
+    before { ENV['GOOGLE_MAPS_API_KEY'] = 'INVALID_KEY' }
 
     subject { @exact_match }
 
     it do
-      expect(subject.send(:query_url, nil)).to eq(
-        'https://maps.googleapis.com/maps/api/geocode/json?address='\
-        '&sensor=false&key=[secure]'
+      expect(subject.send(:query_url, nil)).to eql(
+        "https://maps.googleapis.com/maps/api/geocode/json?address="\
+        "&sensor=false&key=#{(ENV['CI']==true) ? '[secure]' : 'INVALID_KEY'}"
       )
     end
   end

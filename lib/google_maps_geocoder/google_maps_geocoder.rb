@@ -3,7 +3,7 @@ require 'active_support/core_ext/string/inflections'
 require 'logger'
 require 'net/http'
 require 'rack'
-
+require 'curl'
 # A simple PORO wrapper for geocoding with Google Maps.
 #
 # @example
@@ -148,10 +148,12 @@ class GoogleMapsGeocoder
   end
 
   def http(uri)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    http
+    c = Curl::Easy.new(uri.to_s) do |curl|
+      curl.ssl_verify_peer = false
+      curl.verbose = true
+    end
+    c.perform
+    c
   end
 
   def json_from_url(url)
@@ -159,8 +161,8 @@ class GoogleMapsGeocoder
 
     logger.debug('GoogleMapsGeocoder') { uri }
 
-    response = http(uri).request(Net::HTTP::Get.new(uri.request_uri))
-    ActiveSupport::JSON.decode response.body
+    response = http(uri)
+    ActiveSupport::JSON.decode response.body_str
   end
 
   def handle_error
