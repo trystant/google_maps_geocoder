@@ -69,15 +69,15 @@ describe GoogleMapsGeocoder do
     end
   end
 
-  context "when ENV['GOOGLE_MAPS_API_KEY'] = 'INVALID_KEY'" do
-    before { ENV['GOOGLE_MAPS_API_KEY'] = 'INVALID_KEY' }
+  context "when ENV['GOOGLE_MAPS_API_KEY'] = '[secure]'" do
+    before { ENV['GOOGLE_MAPS_API_KEY'] = '[secure]' }
 
     subject { @exact_match }
 
     it do
       expect(subject.send(:query_url, nil)).to eq(
         'https://maps.googleapis.com/maps/api/geocode/json?address='\
-        '&sensor=false&key=INVALID_KEY'
+        '&sensor=false&key=[secure]'
       )
     end
   end
