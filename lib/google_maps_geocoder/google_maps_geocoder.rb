@@ -193,7 +193,7 @@ class GoogleMapsGeocoder
     # make multiple GET requests
     easy_options = {:follow_location => true}
     # Use Curl::CURLPIPE_MULTIPLEX for HTTP/2 multiplexing
-    multi_options = {:pipeline => Curl::CURLPIPE_MULTIPLEX} 
+    multi_options = {:pipeline => Curl::CURLPIPE_MULTIPLEX} unless ENV['CI']
     uris.each_slice(50) do |batch|
       begin
         Curl::Multi.get(batch, easy_options, multi_options) do |easy| 
