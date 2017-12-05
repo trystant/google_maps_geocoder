@@ -105,6 +105,7 @@ class GoogleMapsGeocoder
       "Geocoded \"#{data}\" => \"#{formatted_address}\""
     end
   end
+
   # Fetches the neighborhood
   def fetch_neighborhood
     return unless bounds.is_a?(Array) && bounds.size == 4
