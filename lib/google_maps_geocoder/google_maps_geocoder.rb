@@ -93,7 +93,8 @@ class GoogleMapsGeocoder
   # @example
   #   chez_barack = GoogleMapsGeocoder.new '1600 Pennsylvania Ave'
   def initialize(data)
-    initialize_single_address(data)
+    initialize_single_address(data) if data.is_a?(String)
+    initialize_multiple_addresses(data) if data.is_a?(Array)
   end
 
   # initialization for single address
@@ -105,6 +106,23 @@ class GoogleMapsGeocoder
       "Geocoded \"#{data}\" => \"#{formatted_address}\""
     end
   end
+
+  # initialization for multiple addresses
+  def initialize_multiple_addresses(data)
+    urls = data.map do |datum|
+      datum.is_a?(String) ? URI.parse(query_url(datum)) : datum
+    end
+    bulk_json_from_urls(urls)
+    data.each do |datum|
+      @json = datum.is_a?(String) ? json_from_url(datum) :datum
+      handle_error if @json.blank? || @json['status'] != 'OK'
+      set_attributes_from_json
+      logger.info('GoogleMapsGeocoder') do
+        "Geocoded \"#{data}\" => \"#{formatted_address}\""
+      end
+    end
+  end
+
 
   # Fetches the neighborhood
   def fetch_neighborhood
@@ -161,6 +179,8 @@ class GoogleMapsGeocoder
     c
   end
 
+  def bulk_json_from_urls(urls)
+  end
   def json_from_url(url)
     uri = URI.parse query_url(url)
 

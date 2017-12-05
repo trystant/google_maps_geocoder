@@ -5,6 +5,12 @@ describe GoogleMapsGeocoder do
     begin
       @exact_match   = GoogleMapsGeocoder.new('837 Union Street Brooklyn NY')
       @partial_match = GoogleMapsGeocoder.new('1600 Pennsylvania Washington')
+      @array_match = GoogleMapsGeocoder.new(
+        [
+          '837 Union Street Brooklyn NY',
+          '1600 Pennsylvania Washington'
+        ]
+      )
     rescue SocketError
       @no_network  = true
     rescue RuntimeError
@@ -67,6 +73,10 @@ describe GoogleMapsGeocoder do
       it { expect(subject.lat).to be_within(0.005).of(38.897696) }
       it { expect(subject.lng).to be_within(0.005).of(-77.036519) }
     end
+  end
+  
+  context "with two addresses as an array" do 
+    
   end
 
   context "when ENV['GOOGLE_MAPS_API_KEY'] is invalid" do
