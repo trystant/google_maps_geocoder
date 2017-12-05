@@ -94,7 +94,6 @@ class GoogleMapsGeocoder
   #   chez_barack = GoogleMapsGeocoder.new '1600 Pennsylvania Ave'
   def initialize(data)
     initialize_single_address(data)
-    
   end
 
   # initialization for single address
@@ -106,7 +105,6 @@ class GoogleMapsGeocoder
       "Geocoded \"#{data}\" => \"#{formatted_address}\""
     end
   end
-  
   # Fetches the neighborhood
   def fetch_neighborhood
     return unless bounds.is_a?(Array) && bounds.size == 4
