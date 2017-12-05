@@ -3,7 +3,7 @@ require 'active_support/core_ext/string/inflections'
 require 'logger'
 require 'net/http'
 require 'rack'
-require 'curl'
+require 'curb'
 # A simple PORO wrapper for geocoding with Google Maps.
 #
 # @example
@@ -93,6 +93,12 @@ class GoogleMapsGeocoder
   # @example
   #   chez_barack = GoogleMapsGeocoder.new '1600 Pennsylvania Ave'
   def initialize(data)
+    initialize_single_address(data)
+    
+  end
+
+  # initialization for single address
+  def initialize_single_address(data)
     @json = data.is_a?(String) ? json_from_url(data) : data
     handle_error if @json.blank? || @json['status'] != 'OK'
     set_attributes_from_json
@@ -100,7 +106,7 @@ class GoogleMapsGeocoder
       "Geocoded \"#{data}\" => \"#{formatted_address}\""
     end
   end
-
+  
   # Fetches the neighborhood
   def fetch_neighborhood
     return unless bounds.is_a?(Array) && bounds.size == 4
