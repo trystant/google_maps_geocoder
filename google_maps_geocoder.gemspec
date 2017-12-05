@@ -11,7 +11,6 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'codeclimate-test-reporter', '>= 0'
   s.add_development_dependency 'coveralls', '>= 0'
-  s.add_development_dependency 'curb', '>= 0'
   s.add_development_dependency 'dotenv', '>= 0'
   s.add_development_dependency 'guard-rspec', '>= 0'
   s.add_development_dependency 'pry-byebug', '>= 0'

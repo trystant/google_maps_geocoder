@@ -109,18 +109,15 @@ class GoogleMapsGeocoder
 
   # initialization for multiple addresses
   def initialize_multiple_addresses(data)
-    urls = data.map do |datum|
-      datum.is_a?(String) ? URI.parse(query_url(datum)) : datum
-    end
-    bulk_json_from_urls(urls)
-    data.each do |datum|
-      @json = datum.is_a?(String) ? json_from_url(datum) :datum
-      handle_error if @json.blank? || @json['status'] != 'OK'
+    @addresses = []
+    json_results = bulk_json_from_urls(data)
+    json_results.each do |json_result|
+      @json = json_result
       set_attributes_from_json
-      logger.info('GoogleMapsGeocoder') do
-        "Geocoded \"#{data}\" => \"#{formatted_address}\""
-      end
+      @addresses << @json
+      @json = nil
     end
+    @addresses
   end
 
 
@@ -179,8 +176,6 @@ class GoogleMapsGeocoder
     c
   end
 
-  def bulk_json_from_urls(urls)
-  end
   def json_from_url(url)
     uri = URI.parse query_url(url)
 
@@ -188,6 +183,31 @@ class GoogleMapsGeocoder
 
     response = http(uri)
     ActiveSupport::JSON.decode response.body_str
+  end
+  
+  def bulk_json_from_urls(urls)
+    results = []
+    uris = urls.map do |url|
+      url =URI.parse(query_url(url)).to_s
+    end
+    # make multiple GET requests
+    easy_options = {:follow_location => true}
+    # Use Curl::CURLPIPE_MULTIPLEX for HTTP/2 multiplexing
+    multi_options = {:pipeline => Curl::CURLPIPE_MULTIPLEX} 
+    uris.each_slice(50) do |batch|
+      begin
+        Curl::Multi.get(batch, easy_options, multi_options) do |easy| 
+          begin
+            results << ActiveSupport::JSON.decode(easy.body_str)
+          rescue StandardError => error
+            p "error: #{error}"
+          end
+        end
+      rescue StandardError => error
+        p "Error"
+      end
+    end
+    results
   end
 
   def handle_error
@@ -285,6 +305,10 @@ class GoogleMapsGeocoder
     "#{api_key}"
   end
 
+  def set_bulk_attributes_from_json
+      
+  end
+  
   def set_attributes_from_json
     ALL_ADDRESS_SEGMENTS.each do |segment|
       instance_variable_set :"@#{segment}", send("parse_#{segment}")
