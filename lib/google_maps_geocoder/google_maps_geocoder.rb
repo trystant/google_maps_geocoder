@@ -84,6 +84,9 @@ class GoogleMapsGeocoder
   # Self-explanatory
   attr_reader(*GOOGLE_ADDRESS_SEGMENTS)
 
+  def bulk_addresses
+    @addresses
+  end
   # Geocodes the specified address and wraps the results in a GoogleMapsGeocoder
   # object.
   #
@@ -94,7 +97,7 @@ class GoogleMapsGeocoder
   #   chez_barack = GoogleMapsGeocoder.new '1600 Pennsylvania Ave'
   def initialize(data)
     initialize_single_address(data) if data.is_a?(String)
-    initialize_multiple_addresses(data) if data.is_a?(Array)
+    initialize_multiple_addresses(data) if data.is_a?(Hash)
   end
 
   # initialization for single address
@@ -109,17 +112,17 @@ class GoogleMapsGeocoder
 
   # initialization for multiple addresses
   def initialize_multiple_addresses(data)
-    @addresses = []
+    @addresses = {}
     json_results = bulk_json_from_urls(data)
-    json_results.each do |json_result|
-      @json = json_result
+    json_results.keys.each do |key|
+      id = key.to_s.to_i
+      @json = json_results[key]
       set_attributes_from_json
-      @addresses << @json
+      @addresses[id] = @json
       @json = nil
     end
     @addresses
   end
-
 
   # Fetches the neighborhood
   def fetch_neighborhood
@@ -186,30 +189,31 @@ class GoogleMapsGeocoder
   end
   
   def bulk_json_from_urls(urls)
-    results = []
-    uris = urls.map do |url|
-      url =URI.parse(query_url(url)).to_s
+    urls.keys.each do |id|
+      urls[id] = URI.parse(query_url(urls[id])).to_s
     end
+    make_requests(urls)
+  end
+
+
+  def make_requests(urls)
+    results = {} 
     # make multiple GET requests
     easy_options = {:follow_location => true}
     # Use Curl::CURLPIPE_MULTIPLEX for HTTP/2 multiplexing
     multi_options = {:pipeline => Curl::CURLPIPE_MULTIPLEX} unless ENV['CI']
-    uris.each_slice(50) do |batch|
+    Curl::Multi.get(urls.values, easy_options, multi_options) do |easy| 
       begin
-        Curl::Multi.get(batch, easy_options, multi_options) do |easy| 
-          begin
-            results << ActiveSupport::JSON.decode(easy.body_str)
-          rescue StandardError => error
-            p "error: #{error}"
-          end
-        end
+        results[urls.key(easy.last_effective_url)] = ActiveSupport::JSON.decode(easy.body_str)
       rescue StandardError => error
-        p "Error"
+        p "error: #{error}"
       end
     end
+
     results
   end
-
+  
+  
   def handle_error
     status = @json['status']
     message = GeocodingError.new(@json).message

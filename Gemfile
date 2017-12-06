@@ -1,4 +1,4 @@
 source 'http://rubygems.org'
 
-gem 'curb', git:'https://github.com/trystant/curb.git'
+gem 'curb', git: 'https://github.com/trystant/curb.git'
 gemspec
