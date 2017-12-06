@@ -117,7 +117,7 @@ class GoogleMapsGeocoder
     json_results.keys.each do |key|
       id = key.to_s.to_i
       @json = json_results[key]
-      set_attributes_from_json
+      set_bulk_attributes_from_json_for(@json)
       @addresses[id] = @json
       @json = nil
     end
@@ -309,8 +309,15 @@ class GoogleMapsGeocoder
     "#{api_key}"
   end
 
-  def set_bulk_attributes_from_json
-      
+  def set_bulk_attributes_from_json_for(object)
+    ALL_ADDRESS_SEGMENTS.each do |segment|
+      begin
+        object["results"][0]["#{segment}"] = send("parse_#{segment}")
+      rescue StandardError => error 
+        p "Error #{error}"
+      end
+      #object.instance_variable_set :"@#{segment}", send("parse_#{segment}")
+    end
   end
   
   def set_attributes_from_json
