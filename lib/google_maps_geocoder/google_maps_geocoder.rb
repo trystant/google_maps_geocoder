@@ -95,6 +95,7 @@ class GoogleMapsGeocoder
   #   address
   # @example
   #   chez_barack = GoogleMapsGeocoder.new '1600 Pennsylvania Ave'
+  
   def initialize(data)
     initialize_single_address(data) if data.is_a?(String)
     initialize_multiple_addresses(data) if data.is_a?(Hash)
@@ -187,7 +188,7 @@ class GoogleMapsGeocoder
     response = http(uri)
     ActiveSupport::JSON.decode response.body_str
   end
-  
+
   def bulk_json_from_urls(urls)
     urls.keys.each do |id|
       urls[id] = URI.parse(query_url(urls[id])).to_s
@@ -312,11 +313,10 @@ class GoogleMapsGeocoder
   def set_bulk_attributes_from_json_for(object)
     ALL_ADDRESS_SEGMENTS.each do |segment|
       begin
-        object["results"][0]["#{segment}"] = send("parse_#{segment}")
-      rescue StandardError => error 
+        object["results"][0][segment.to_s] = send("parse_#{segment}")
+      rescue StandardError => error
         p "Error #{error}"
       end
-      #object.instance_variable_set :"@#{segment}", send("parse_#{segment}")
     end
   end
   
