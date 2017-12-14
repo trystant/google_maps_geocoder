@@ -3,6 +3,7 @@ AllCops:
     - '**/Rakefile'
     - '**/config.ru'
   Exclude:
+    - '**file'
     - 'bin/**/*'
     - 'coverage/**/*'
     - 'script/**/*'

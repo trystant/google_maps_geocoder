@@ -69,13 +69,13 @@ describe GoogleMapsGeocoder do
           .to match(/1600 Pennsylvania Ave NW, Washington, DC 20500, USA/)
       end
     end
-  
+
     context 'coordinates' do
       it { expect(subject.lat).to be_within(0.005).of(38.897696) }
       it { expect(subject.lng).to be_within(0.005).of(-77.036519) }
     end
   end
-  
+
   context "when ENV['GOOGLE_MAPS_API_KEY'] is invalid" do
     subject { @exact_match }
 

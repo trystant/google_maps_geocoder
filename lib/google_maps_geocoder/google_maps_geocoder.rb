@@ -95,7 +95,7 @@ class GoogleMapsGeocoder
   #   address
   # @example
   #   chez_barack = GoogleMapsGeocoder.new '1600 Pennsylvania Ave'
-  
+
   def initialize(data)
     initialize_single_address(data) if data.is_a?(String)
     initialize_multiple_addresses(data) if data.is_a?(Hash)
@@ -118,7 +118,7 @@ class GoogleMapsGeocoder
     json_results.keys.each do |key|
       id = key.to_s.to_i
       @json = json_results[key]
-      set_bulk_attributes_from_json_for(@json)
+      bulk_attributes_from_json_for(@json)
       @addresses[id] = @json
       @json = nil
     end
@@ -196,29 +196,23 @@ class GoogleMapsGeocoder
     make_requests(urls)
   end
 
-
-  def make_requests(urls)
-    results = {} 
-    # make multiple GET requests
-    easy_options = {:follow_location => true}
-    # Use Curl::CURLPIPE_MULTIPLEX for HTTP/2 multiplexing
-    multi_options = {:pipeline => Curl::CURLPIPE_MULTIPLEX} unless ENV['CI']
-    Curl::Multi.get(urls.values, easy_options, multi_options) do |easy| 
+  def make_requests(urls) # rubocop:disable Metrics/MethodLength
+    results = {}, easy_options = { follow_location: true }
+    multi_options = { pipeline: Curl::CURLPIPE_MULTIPLEX } unless ENV['CI']
+    Curl::Multi.get(urls.values, easy_options, multi_options) do |easy|
       begin
-        results[urls.key(easy.last_effective_url)] = ActiveSupport::JSON.decode(easy.body_str)
+        results[urls.key(easy.last_effective_url)] =
+          ActiveSupport::JSON.decode(easy.body_str)
       rescue StandardError => error
         p "error: #{error}"
       end
     end
-
     results
-  end
-  
-  
+  end # rubocop:enable Metrics/MethodLength
+
   def handle_error
     status = @json['status']
     message = GeocodingError.new(@json).message
-
     # for status codes see https://developers.google.com/maps/documentation/geocoding/intro#StatusCodes
     ERROR_STATUSES.each do |key, value|
       next unless status == value
@@ -310,19 +304,21 @@ class GoogleMapsGeocoder
     "#{api_key}"
   end
 
-  def set_bulk_attributes_from_json_for(object)
+  def bulk_attributes_from_json_for(object)
     ALL_ADDRESS_SEGMENTS.each do |segment|
       begin
-        object["results"][0][segment.to_s] = send("parse_#{segment}")
+        object['results'][0][segment.to_s] = send("parse_#{segment}")
       rescue StandardError => error
         p "Error #{error}"
       end
     end
   end
-  
+
   def set_attributes_from_json
     ALL_ADDRESS_SEGMENTS.each do |segment|
       instance_variable_set :"@#{segment}", send("parse_#{segment}")
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
