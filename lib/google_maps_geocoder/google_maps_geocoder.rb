@@ -130,7 +130,7 @@ class GoogleMapsGeocoder
     return unless bounds.is_a?(Array) && bounds.size == 4
     uri = URI.parse neighborhood_url
     logger.debug('GoogleMapsGeocoder') { uri }
-    response = http(uri).request(Net::HTTP::Get.new(uri.request_uri))
+    response = http(uri)
     results = ActiveSupport::JSON.decode response.body
     results['results'].map { |e| e['address_components'] }
                       .compact
