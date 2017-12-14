@@ -322,3 +322,4 @@ class GoogleMapsGeocoder
 end
 
 # rubocop:enable Metrics/ClassLength
+# rubocop:enable Metrics/AbcSize
