@@ -17,7 +17,7 @@ describe GoogleMapsGeocoder do
       @query_limit = true
     end
   end
-
+  # rubocop:enable Metrics/BlockLength
   before(:each) do
     pending 'waiting for a network connection' if @no_network
     pending 'waiting for query limit to pass' if @query_limit

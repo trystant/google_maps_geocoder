@@ -115,7 +115,7 @@ class GoogleMapsGeocoder
   def initialize_multiple_addresses(data)
     @addresses = {}
     json_results = bulk_json_from_urls(data)
-    json_results.keys.each do |key|
+    json_results.each_key do |key|
       id = key.to_s.to_i
       @json = json_results[key]
       bulk_attributes_from_json_for(@json)
@@ -190,7 +190,7 @@ class GoogleMapsGeocoder
   end
 
   def bulk_json_from_urls(urls)
-    urls.keys.each do |id|
+    urls.each_key do |id|
       urls[id] = URI.parse(query_url(urls[id])).to_s
     end
     make_requests(urls)
@@ -208,7 +208,8 @@ class GoogleMapsGeocoder
       end
     end
     results
-  end # rubocop:enable Metrics/MethodLength
+  end
+  # rubocop:enable Metrics/MethodLength
 
   def handle_error
     status = @json['status']
