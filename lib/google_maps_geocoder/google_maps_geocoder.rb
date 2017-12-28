@@ -96,6 +96,29 @@ class GoogleMapsGeocoder
   # @example
   #   chez_barack = GoogleMapsGeocoder.new '1600 Pennsylvania Ave'
 
+  def build_google_api_urls(uris)
+    urls = {}
+    uris.each_key do |id|
+      urls[id.to_i] = URI.parse(query_url(uris[id])).to_s
+    end
+    urls
+  end
+  
+  def make_requests(urls) # rubocop:disable Metrics/MethodLength
+    results = {}, easy_options = { follow_location: true }
+    multi_options = { pipeline: Curl::CURLPIPE_MULTIPLEX } unless ENV['CI']
+    Curl::Multi.get(urls.values, easy_options, multi_options) do |easy|
+      begin
+        results[urls.key(easy.last_effective_url)] =
+          ActiveSupport::JSON.decode(easy.body_str)
+      rescue StandardError => error
+        p "error: #{error}"
+      end
+    end
+    results
+  end
+  # rubocop:enable Metrics/MethodLength
+  
   def initialize(data)
     initialize_single_address(data) if data.is_a?(String)
     initialize_multiple_addresses(data) if data.is_a?(Hash)
@@ -114,10 +137,11 @@ class GoogleMapsGeocoder
   # initialization for multiple addresses
   def initialize_multiple_addresses(data)
     @addresses = {}
-    json_results = bulk_json_from_urls(data)
-    json_results.each_key do |key|
-      id = key.to_s.to_i
-      @json = json_results[key]
+    google_api_urls = build_google_api_urls(data)
+    json_results = make_requests(google_api_urls)
+    json_results.each do |key|
+      next if key.empty?
+      @json = key['results']
       bulk_attributes_from_json_for(@json)
       @addresses[id] = @json
       @json = nil
@@ -128,6 +152,20 @@ class GoogleMapsGeocoder
   # Fetches the neighborhood
   def fetch_neighborhood
     return unless bounds.is_a?(Array) && bounds.size == 4
+    uri = URI.parse neighborhood_url
+    logger.debug('GoogleMapsGeocoder') { uri }
+    response = http(uri)
+    results = ActiveSupport::JSON.decode response.body
+    results['results'].map { |e| e['address_components'] }
+                      .compact
+                      .flatten
+                      .select { |e| e['types'].include?('neighborhood') }
+                      .map { |e| e['long_name'] }.uniq
+  end
+  
+  # Bulk fetches the neighborhoods
+  def fetch_neighborhoods
+    return if @addresses.empty?
     uri = URI.parse neighborhood_url
     logger.debug('GoogleMapsGeocoder') { uri }
     response = http(uri)
@@ -182,34 +220,11 @@ class GoogleMapsGeocoder
 
   def json_from_url(url)
     uri = URI.parse query_url(url)
-
     logger.debug('GoogleMapsGeocoder') { uri }
-
     response = http(uri)
     ActiveSupport::JSON.decode response.body_str
   end
 
-  def bulk_json_from_urls(urls)
-    urls.each_key do |id|
-      urls[id] = URI.parse(query_url(urls[id])).to_s
-    end
-    make_requests(urls)
-  end
-
-  def make_requests(urls) # rubocop:disable Metrics/MethodLength
-    results = {}, easy_options = { follow_location: true }
-    multi_options = { pipeline: Curl::CURLPIPE_MULTIPLEX } unless ENV['CI']
-    Curl::Multi.get(urls.values, easy_options, multi_options) do |easy|
-      begin
-        results[urls.key(easy.last_effective_url)] =
-          ActiveSupport::JSON.decode(easy.body_str)
-      rescue StandardError => error
-        p "error: #{error}"
-      end
-    end
-    results
-  end
-  # rubocop:enable Metrics/MethodLength
 
   def handle_error
     status = @json['status']
