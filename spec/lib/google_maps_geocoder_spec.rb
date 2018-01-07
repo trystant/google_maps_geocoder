@@ -133,12 +133,14 @@ end
 
 describe GoogleMapsGeocoder, '#build_google_api_urls' do
   let(:uri) { GoogleMapsGeocoder.api_uri }
-
-  it 'should turn a hash with IDs & addresses into a hash with IDs and URLs' do
-    address_hash = {
+  let(:address_hash) do
+    {
       1 => '837 Union Street Brooklyn NY',
       2 => '1600 Pennsylvania Washington'
     }
+  end
+
+  it 'should turn a hash with IDs & addresses into a hash with IDs and URLs' do
     geocoder = GoogleMapsGeocoder.new(nil)
     address_with_urls_hash = geocoder.build_google_api_urls(address_hash)
     expect(address_with_urls_hash).to eq(
@@ -152,14 +154,14 @@ end
 
 describe GoogleMapsGeocoder, '#make_requests' do
   let(:uri) { GoogleMapsGeocoder.api_uri }
-  let(:google_api_urls) {
+  let(:google_api_urls) do
     {
       1 => "#{uri}?address=837+Union+Street+Brooklyn+NY&sensor=false&"\
         "key=#{ENV['GOOGLE_MAPS_API_KEY']}",
       2 => "#{uri}?address=1600+Pennsylvania+Washington&sensor=false&"\
         "key=#{ENV['GOOGLE_MAPS_API_KEY']}"
     }
-  }
+  end
   it 'returns a hash of GoogleMapsGeocoder results given a hash with URLs' do
     geocoder = GoogleMapsGeocoder.new(nil)
     geocoder.make_requests(google_api_urls)
