@@ -151,6 +151,7 @@ describe GoogleMapsGeocoder, '#build_google_api_urls' do
 end
 
 describe GoogleMapsGeocoder, '#make_requests' do
+  let(:uri) { GoogleMapsGeocoder.api_uri }
   it 'returns a hash of GoogleMapsGeocoder results given a hash with URLs' do
     google_api_urls = {
       1 => "#{uri}?address=837+Union+Street+Brooklyn+NY&sensor=false&"\
@@ -163,7 +164,7 @@ describe GoogleMapsGeocoder, '#make_requests' do
   end
 end
 
-describe GoogleMapsGeocoder, '#api_uri' do
+describe GoogleMapsGeocoder, '.api_uri' do
   it 'returns the URL for the API' do
     expect(GoogleMapsGeocoder.api_uri).to eq('https://maps.googleapis.com/maps/api/geocode/json')
   end
