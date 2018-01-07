@@ -157,6 +157,7 @@ class GoogleMapsGeocoder
     end
     @addresses
   end
+  # rubocop:enable Metrics/MethodLength
 
   # Fetches the neighborhood
   def fetch_neighborhood
