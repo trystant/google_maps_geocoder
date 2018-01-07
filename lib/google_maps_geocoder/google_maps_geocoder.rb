@@ -143,6 +143,7 @@ class GoogleMapsGeocoder
   end
 
   # initialization for multiple addresses
+  # rubocop:disable Metrics/MethodLength
   def initialize_multiple_addresses(data)
     @addresses = {}
     google_api_urls = build_google_api_urls(data)

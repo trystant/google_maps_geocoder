@@ -98,7 +98,7 @@ describe GoogleMapsGeocoder do
     end
   end
 end
-
+# rubocop:disable Metrics/BlockLength
 describe GoogleMapsGeocoder, 'batch' do
   before(:all) do
     begin
