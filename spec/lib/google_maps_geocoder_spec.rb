@@ -162,10 +162,7 @@ describe GoogleMapsGeocoder, '#make_requests' do
         "key=#{ENV['GOOGLE_MAPS_API_KEY']}"
     }
   end
-  it 'returns a hash of GoogleMapsGeocoder results given a hash with URLs' do
-    geocoder = GoogleMapsGeocoder.new(nil)
-    geocoder.make_requests(google_api_urls)
-  end
+  it 'returns a hash of GoogleMapsGeocoder results given a hash with URLs'
 end
 
 describe GoogleMapsGeocoder, '.api_uri' do
