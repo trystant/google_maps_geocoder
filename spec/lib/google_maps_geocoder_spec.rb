@@ -103,53 +103,68 @@ describe GoogleMapsGeocoder, 'batch' do
   before(:all) do
     begin
       address_hash = {
-        '1'=> '837 Union Street Brooklyn NY',
-        '2'=> '1600 Pennsylvania Washington'
-      } 
+        '1': '837 Union Street Brooklyn NY',
+        '2': '1600 Pennsylvania Washington'
+      }
       @array_match = GoogleMapsGeocoder.new(address_hash)
-     p "Done with array constructor"
-    rescue SocketError => error
+      p 'Done with array constructor'
+    rescue SocketError
       @no_network  = true
-    rescue RuntimeError => error
+    rescue RuntimeError
       @query_limit = true
-    rescue StandardError => error
-
+    rescue StandardError
+      @unknown_error = true
     end
   end
+
   # rubocop:enable Metrics/BlockLength
   before(:each) do
     pending 'waiting for a network connection' if @no_network
     pending 'waiting for query limit to pass' if @query_limit
+    pending 'an unknown error occurred' if @unknown_error
   end
 
-  context "with multiple addresses" do
-    pending "not ready yet" do
+  context 'with multiple addresses' do
+    pending 'not ready yet' do
       it { expect(subject).to be_array_match }
-    end  
+    end
   end
 end
 
-describe GoogleMapsGeocoder, "#build_google_api_urls" do
+describe GoogleMapsGeocoder, '#build_google_api_urls' do
+  let(:uri) { GoogleMapsGeocoder.api_uri }
+
   it 'should turn a hash with IDs & addresses into a hash with IDs and URLs' do
     address_hash = {
-      '1'=> '837 Union Street Brooklyn NY',
-      '2'=> '1600 Pennsylvania Washington'
-    } 
+      1 => '837 Union Street Brooklyn NY',
+      2 => '1600 Pennsylvania Washington'
+    }
     geocoder = GoogleMapsGeocoder.new(nil)
     address_with_urls_hash = geocoder.build_google_api_urls(address_hash)
     expect(address_with_urls_hash).to eq(
-      {1=>"https://maps.googleapis.com/maps/api/geocode/json?address=837+Union+Street+Brooklyn+NY&sensor=false&key=#{ENV['GOOGLE_MAPS_API_KEY']}",
-       2=>"https://maps.googleapis.com/maps/api/geocode/json?address=1600+Pennsylvania+Washington&sensor=false&key=#{ENV['GOOGLE_MAPS_API_KEY']}"}  
+      1 => "#{uri}?address=837+Union+Street+Brooklyn+NY&sensor=false&"\
+        "key=#{ENV['GOOGLE_MAPS_API_KEY']}",
+      2 => "#{uri}?address=1600+Pennsylvania+Washington&sensor=false&"\
+        "key=#{ENV['GOOGLE_MAPS_API_KEY']}"
     )
   end
 end
 
-describe GoogleMapsGeocoder, "#make_requests" do
+describe GoogleMapsGeocoder, '#make_requests' do
   it 'returns a hash of GoogleMapsGeocoder results given a hash with URLs' do
-    google_api_urls = {1=>"https://maps.googleapis.com/maps/api/geocode/json?address=837+Union+Street+Brooklyn+NY&sensor=false&key=#{ENV['GOOGLE_MAPS_API_KEY']}",
-       2=>"https://maps.googleapis.com/maps/api/geocode/json?address=1600+Pennsylvania+Washington&sensor=false&key=AIzaSyDn8L7XeR6SgHTNhqKDvUY0t58BjKvziCU#{ENV['GOOGLE_MAPS_API_KEY']}"}  
+    google_api_urls = {
+      1 => "#{uri}?address=837+Union+Street+Brooklyn+NY&sensor=false&"\
+        "key=#{ENV['GOOGLE_MAPS_API_KEY']}",
+      2 => "#{uri}?address=1600+Pennsylvania+Washington&sensor=false&"\
+        "key=#{ENV['GOOGLE_MAPS_API_KEY']}"
+    }
     geocoder = GoogleMapsGeocoder.new(nil)
-    geocode_results = geocoder.make_requests(google_api_urls)
-    p "Done"
+    geocoder.make_requests(google_api_urls)
+  end
+end
+
+describe GoogleMapsGeocoder, '#api_uri' do
+  it 'returns the URL for the API' do
+    expect(GoogleMapsGeocoder.api_uri).to eq('https://maps.googleapis.com/maps/api/geocode/json')
   end
 end

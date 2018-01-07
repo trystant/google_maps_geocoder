@@ -14,6 +14,12 @@ require 'curb'
 # rubocop:disable Metrics/ClassLength
 # rubocop:disable Metrics/AbcSize
 class GoogleMapsGeocoder
+  class << self
+    # returns the Google Map API URL
+    def api_uri
+      GOOGLE_API_URI
+    end
+  end
   # Error handling for google statuses
   class GeocodingError < StandardError
     # Initialize an error class wrapping the error returned by Google Maps.
@@ -84,9 +90,11 @@ class GoogleMapsGeocoder
   # Self-explanatory
   attr_reader(*GOOGLE_ADDRESS_SEGMENTS)
 
+  # Returns a list of geocoded addresses
   def bulk_addresses
     @addresses
   end
+
   # Geocodes the specified address and wraps the results in a GoogleMapsGeocoder
   # object.
   #
@@ -103,7 +111,7 @@ class GoogleMapsGeocoder
     end
     urls
   end
-  
+
   def make_requests(urls) # rubocop:disable Metrics/MethodLength
     results = {}, easy_options = { follow_location: true }
     multi_options = { pipeline: Curl::CURLPIPE_MULTIPLEX } unless ENV['CI']
@@ -118,7 +126,7 @@ class GoogleMapsGeocoder
     results
   end
   # rubocop:enable Metrics/MethodLength
-  
+
   def initialize(data)
     initialize_single_address(data) if data.is_a?(String)
     initialize_multiple_addresses(data) if data.is_a?(Hash)
@@ -162,7 +170,7 @@ class GoogleMapsGeocoder
                       .select { |e| e['types'].include?('neighborhood') }
                       .map { |e| e['long_name'] }.uniq
   end
-  
+
   # Bulk fetches the neighborhoods
   def fetch_neighborhoods
     return if @addresses.empty?
@@ -224,7 +232,6 @@ class GoogleMapsGeocoder
     response = http(uri)
     ActiveSupport::JSON.decode response.body_str
   end
-
 
   def handle_error
     status = @json['status']
