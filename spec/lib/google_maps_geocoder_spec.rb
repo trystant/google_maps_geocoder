@@ -50,17 +50,16 @@ describe GoogleMapsGeocoder do
     context 'address' do
       it do
         expect(subject.formatted_street_address)
-          .to eql '1600 Pennsylvania Avenue Southeast'
+          .to match '1600 Pennsylvania Avenue'
       end
       it { expect(subject.city).to eq 'Washington' }
       it { expect(subject.state_long_name).to eql 'District of Columbia' }
       it { expect(subject.state_short_name).to eql 'DC' }
-      it { expect(subject.postal_code).to match(/20003/) }
       it { expect(subject.country_short_name).to eql 'US' }
       it { expect(subject.country_long_name).to eql 'United States' }
       it do
         expect(subject.formatted_address)
-          .to match(/1600 Pennsylvania Ave SE, Washington, DC 20003, USA/)
+          .to match(/1600 Pennsylvania Ave.*, Washington, DC 20003, USA/)
       end
     end
 
