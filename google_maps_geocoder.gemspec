@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
                   'Ruby object.'
   s.homepage = 'http://github.com/ivanoblomov/google_maps_geocoder'
   s.authors = ['Roderick Monje', 'Mark Nyon']
+
   s.add_development_dependency 'codeclimate-test-reporter', '>= 0'
   s.add_development_dependency 'coveralls', '>= 0'
   s.add_development_dependency 'dotenv', '>= 0'

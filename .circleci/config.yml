@@ -36,9 +36,6 @@ jobs:
             - ./vendor/bundle
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
 
-      # Rubygems setup
-      - run: gem update --system
-
       # run tests!
       - run:
           name: run tests
