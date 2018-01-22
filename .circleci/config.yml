@@ -36,14 +36,19 @@ jobs:
             - ./vendor/bundle
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
 
+      # Rubygems setup
+      - run: bundle binstubs --force
+
       # run tests!
       - run:
           name: run tests
           command: |
+            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)"
             bundle exec rspec --format progress \
                             --format RspecJunitFormatter \
+                            --out /tmp/test-results/rspec.xml \
                             --format progress \
-                            spec/**/*_spec.rb
+                            $TEST_FILES
 
       # collect reports
       - store_test_results:
