@@ -40,6 +40,7 @@ jobs:
       - run:
           name: check bundler version
           command: |
+            gem update --system
             ./vendor/bundle/ruby/2.5.0/bin/bundle --version
 
       # run tests!
