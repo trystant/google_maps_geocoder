@@ -37,7 +37,10 @@ jobs:
           key: v1-dependencies-{{ checksum "Gemfile.lock" }}
 
       # Rubygems setup
-      - run: bundle --version --path vendor/bundle
+      - run:
+          name: check bundler version
+          command: |
+            bundle --version --path vendor/bundle
 
       # run tests!
       - run:
